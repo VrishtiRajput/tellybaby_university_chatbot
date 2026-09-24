@@ -1,4 +1,5 @@
-# app.py
+
+# tellybaby_offline_fallback.py
 import streamlit as st
 import google.generativeai as genai
 from datetime import datetime, timedelta
@@ -9,22 +10,22 @@ import os
 st.set_page_config(page_title="TellyBaby (Offline-safe) 🤖🎓", page_icon="🎓")
 
 # ---------- CONFIG ----------
-# Key is read from Streamlit secrets (Settings > Secrets on Streamlit Cloud,
-# or a local .streamlit/secrets.toml file that you NEVER commit to git).
-API_KEY = st.secrets.get("GEMINI_API_KEY", None)
+API_KEY = "AIzaSyBbClhmx7SxERZOIVCV0JtS-bnINlRlLOo"
+genai.configure(api_key=API_KEY)
 
-GEMINI_AVAILABLE = False
-model = None
 if API_KEY:
     try:
-        genai.configure(api_key=API_KEY)
+        genai.configure(api_key="AIzaSyBbClhmx7SxERZOIVCV0JtS-bnINlRlLOo")
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         GEMINI_AVAILABLE = True
     except Exception:
         # If configuration fails, we'll still continue in offline mode.
         GEMINI_AVAILABLE = False
         model = None
-# else: no API key provided — offline mode only
+else:
+    # No API key provided — offline mode only
+    GEMINI_AVAILABLE = False
+    model = None
 
 #Default UNIVERSITY DATA (can be overwritten by uploads)
 default_timetable = {
@@ -374,10 +375,10 @@ with st.sidebar:
             st.write(f"{idx+1}. {status} {rem['date']} {rem['time']} — {rem['text']}")
             if st.button(f"Mark done {idx+1}", key=f"done_{idx}"):
                 st.session_state.reminders[idx]["done"] = True
-                st.rerun()
+                st.experimental_rerun()
         if st.button("Clear all reminders"):
             st.session_state.reminders = []
-            st.rerun()
+            st.experimental_rerun()
 
 # ---------- Main UI ----------
 st.title("🤖 TellyBaby (Offline-safe) - University Assistant 🎓")
